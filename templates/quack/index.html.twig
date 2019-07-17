@@ -1,20 +1,39 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello QuackController!{% endblock %}
+{% block title %}Quack index{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <h1>Quack index</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Content</th>
+                <th>Author</th>
+                <th>Created_at</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for quack in quacks %}
+            <tr>
+                <td>{{ quack.id }}</td>
+                <td>{{ quack.content }}</td>
+                <td>{{ quack.author }}</td>
+                <td>{{ quack.createdAt ? quack.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('quack_show', {'id': quack.id}) }}">show</a>
+                    <a href="{{ path('quack_edit', {'id': quack.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/mes virtualhost/twitterLike/src/Controller/QuackController.php'|file_link(0) }}">src/Controller/QuackController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/mes virtualhost/twitterLike/templates/quack/index.html.twig'|file_link(0) }}">templates/quack/index.html.twig</a></code></li>
-    </ul>
-</div>
+    <a href="{{ path('quack_new') }}">Create new</a>
 {% endblock %}

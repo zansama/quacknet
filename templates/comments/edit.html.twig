@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit comment{% endblock %}
+
+{% block body %}
+    <h1>Edit comment</h1>
+
+    {{ include('comments/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('quack_all') }}">back to quack</a>
+{% endblock %}
