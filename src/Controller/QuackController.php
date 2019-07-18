@@ -9,6 +9,7 @@ use App\Form\QuackType;
 use App\Repository\CommentRepository;
 use App\Repository\DucksRepository;
 use App\Repository\QuackRepository;
+use App\Service\FileUploader;
 use http\Client\Curl\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +72,7 @@ class QuackController extends AbstractController
 
 
         return $this->render('quack/quack.html.twig', [
-            'quacks' => $quackRepository->findAll(),
+            'quacks' => $quackRepository->findBy(array(), array('created_at' => 'DESC')),
             'forms' => $forms,
         ]);
 
@@ -82,7 +83,7 @@ class QuackController extends AbstractController
      * @Route("/new", name="quack_new", methods={"GET","POST"})
      * @throws \Exception
      */
-    public function new(Request $request): Response
+    public function new(Request $request, FileUploader $fileUploader ): Response
     {
 
         if ($this->getUser()) {
@@ -93,6 +94,16 @@ class QuackController extends AbstractController
             $form->handleRequest($request);
 
             if ($form->isSubmitted() && $form->isValid()) {
+                $photo = $form['photo']->getData();
+
+                // this condition is needed because the 'brochure' field is not required
+                // so the PDF file must be processed only when a file is uploaded
+                if ($photo) {
+                    $photoFileName = $fileUploader->upload($photo);
+                    // updates the 'photoname' property to store the PDF file name
+                    // instead of its contents
+                    $quack->setPhoto('/uploads/photo_directory/'.$photoFileName);
+                }
                 $quack->setAuthor($this->getUser());
                 $quack->setCreatedAt(new \DateTime('now', (new \DateTimeZone('Europe/Paris'))));
                 $entityManager = $this->getDoctrine()->getManager();

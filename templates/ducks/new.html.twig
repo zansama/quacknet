@@ -3,9 +3,10 @@
 {% block title %}New Ducks{% endblock %}
 
 {% block body %}
+    <div class="container">
     <h1>Create new Ducks</h1>
 
     {{ include('ducks/_form.html.twig') }}
 
-    <a class="btn btn-primary" href="{{ path('home') }}">home</a>
+    </div>
 {% endblock %}

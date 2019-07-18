@@ -35,6 +35,13 @@
                         {% if is_granted('EDIT', comment)  %}
                             <a class="btn text-primary" href="{{ path('comment_edit', {'id': comment.id}) }}">edit</a>
                         {% endif %}
+                        {% if is_granted('COMMENT_DELETE', comment) or is_granted('DELETE', quack)  %}
+                        <form method="post" action="{{ path('comment_delete', {'id': comment.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+                            <button class="btn">Delete</button>
+                        </form>
+                        {% endif %}
                         <small>{{ comment.createdAt ? comment.createdAt|date('Y-m-d H:i:s') : '' }}</small>
                     </div>
                 {% endfor %}

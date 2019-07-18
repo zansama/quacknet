@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\Quack;
 use App\Form\CommentsType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,6 +46,27 @@ class CommentsController extends AbstractController
             'form' => $form->createView(),
         ]);
 
+
+        return $this->redirectToRoute('quack_all');
+    }
+
+    /**
+     * @Route("/{id}", name="comment_delete", methods={"DELETE"})
+     * @param Request $request
+     * @param Comment $comment
+     * @return Response
+     */
+    public function delete(Request $request, Comment $comment): Response
+    {
+
+        $this->denyAccessUnlessGranted('COMMENT_DELETE', $comment);
+        if ($this->isCsrfTokenValid('delete' . $comment->getId(), $request->request->get('_token'))) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($comment);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('quack_all');
 
         return $this->redirectToRoute('quack_all');
     }

@@ -2,6 +2,9 @@
 {% block body %}
     <div class="container">
         <h1 class="my-5">Bienvenue sur votre Compte !</h1>
+        <div>
+            <img src="{{ duck.photo }}" alt="test">
+        </div>
         {{ form_start(form) }}
         {{ form_widget(form) }}
         <button class="btn btn-primary">{{ button_label|default('Save') }}</button>

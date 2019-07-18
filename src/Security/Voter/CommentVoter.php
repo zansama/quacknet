@@ -12,7 +12,7 @@ class CommentVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['EDIT', 'DELETE'])
+        return in_array($attribute, ['EDIT', 'COMMENT_DELETE'])
             && $subject instanceof \App\Entity\Comment;
     }
 
@@ -32,8 +32,8 @@ class CommentVoter extends Voter
                 return $comment->getAuthor()->getId() == $user->getId();
                 // return true or false
                 break;
-            case 'DELETE':
-                return $comment->getAuthor()->getId() == $user->getId();
+            case 'COMMENT_DELETE':
+                return $comment->getAuthor()->getId() == $user->getId() || $comment->getQuack()->getAuthor()->getId() == $user->getId();
                 // return true or false
                 break;
             case 'CREATE':

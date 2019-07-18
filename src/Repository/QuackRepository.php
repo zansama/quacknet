@@ -19,6 +19,8 @@ class QuackRepository extends ServiceEntityRepository
         parent::__construct($registry, Quack::class);
     }
 
+
+
     // /**
     //  * @return Quack[] Returns an array of Quack objects
     //  */
