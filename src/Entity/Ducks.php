@@ -5,10 +5,14 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\DucksRepository")
+ * @ORM\Table(name="ducks")
+ * @UniqueEntity(fields="email", message="Email déjà pris")
+ * @UniqueEntity(fields="duckname", message="Username déjà pris")
  */
 class Ducks implements UserInterface
 {
@@ -58,6 +62,13 @@ class Ducks implements UserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $photo;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $roles = [];
 
 
 
@@ -145,12 +156,21 @@ class Ducks implements UserInterface
      * and populated in any number of different ways when the user object
      * is created.
      *
-     * @return (Role|string)[] The user roles
+     * @return array (Role|string)[] The user roles
      */
     public function getRoles()
     {
-        return ['ROLE_USER'];
+        $roles = $this->roles;
+
+        // Afin d'être sûr qu'un user a toujours au moins 1 rôle
+        if (empty($roles)) {
+            $roles[] = 'ROLE_USER';
+        }
+        return array_unique($roles);
+
     }
+
+
 
     /**
      * Returns the salt that was originally used to encode the password.
@@ -259,5 +279,19 @@ class Ducks implements UserInterface
         return $this;
     }
 
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
 
+        return $this;
+    }
+
+
+
+    /**
+     * @return mixed
+     */
+    public function __toString() {
+        return $this->duckname;
+    }
 }

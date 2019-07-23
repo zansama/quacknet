@@ -37,6 +37,11 @@ class Comment
      */
     private $quack;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isOk;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -88,5 +93,25 @@ class Comment
         $this->quack = $quack;
 
         return $this;
+    }
+
+    public function getIsOk(): ?bool
+    {
+        return $this->isOk;
+    }
+
+    public function setIsOk(bool $isOk): self
+    {
+        $this->isOk = $isOk;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString() {
+        $id = strval($this->id);
+        return $id;
     }
 }

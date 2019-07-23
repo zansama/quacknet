@@ -5,9 +5,20 @@ namespace App\Security\Voter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Security;
+
 
 class CommentVoter extends Voter
 {
+    private $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
+
+
+
     protected function supports($attribute, $subject)
     {
         // replace with your own logic
@@ -27,6 +38,11 @@ class CommentVoter extends Voter
         if(null == $comment->getAuthor()) {
             return false;
         }
+
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return true;
+        }
+        
         switch ($attribute) {
             case 'EDIT':
                 return $comment->getAuthor()->getId() == $user->getId();

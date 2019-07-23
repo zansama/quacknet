@@ -3,16 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Ducks;
+use App\Form\DuckRegistrationType;
 use App\Form\DucksType;
 use App\Repository\DucksRepository;
 use App\Service\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
 
 /**
  * @Route("/ducks")
@@ -21,6 +21,8 @@ class DucksController extends AbstractController
 {
     /**
      * @Route("/", name="ducks_index", methods={"GET"})
+     * @param DucksRepository $ducksRepository
+     * @return Response
      */
     public function index(DucksRepository $ducksRepository): Response
     {
@@ -31,11 +33,14 @@ class DucksController extends AbstractController
 
     /**
      * @Route("/new", name="ducks_new", methods={"GET","POST"})
+     * @param Request $request
+     * @param FileUploader $fileUploader
+     * @return Response
      */
-    public function new(Request $request, FileUploader $fileUploader): Response
+    public function new(Request $request, FileUploader $fileUploader, UserPasswordEncoderInterface $encoder): Response
     {
         $duck = new Ducks();
-        $form = $this->createForm(DucksType::class, $duck);
+        $form = $this->createForm(DuckRegistrationType::class, $duck);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -49,7 +54,10 @@ class DucksController extends AbstractController
                 // instead of its contents
                 $duck->setPhoto('/uploads/photo_directory/'.$photoFileName);
             }
-
+            $plainPassword = $form['password']->getdata();
+            $encoded = $encoder->encodePassword($duck, $plainPassword);
+            $duck->setPassword($encoded);
+            $duck->setRoles(['ROLE_USER']);
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($duck);
             $entityManager->flush();
@@ -65,6 +73,8 @@ class DucksController extends AbstractController
 
     /**
      * @Route("/{id}", name="ducks_show", methods={"GET"})
+     * @param Ducks $duck
+     * @return Response
      */
     public function show(Ducks $duck): Response
     {
@@ -75,11 +85,15 @@ class DucksController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="ducks_edit", methods={"GET","POST"})
+     * @param Request $request
+     * @param Ducks $duck
+     * @param FileUploader $fileUploader
+     * @return Response
      */
-    public function edit(Request $request, Ducks $duck, FileUploader $fileUploader): Response
+    public function edit(Request $request, Ducks $duck, FileUploader $fileUploader, UserPasswordEncoderInterface $encoder): Response
     {
         if ($this->getUser()) {
-            $form = $this->createForm(DucksType::class, $duck);
+            $form = $this->createForm(DuckRegistrationType::class, $duck);
             $form->handleRequest($request);
 
             if ($form->isSubmitted() && $form->isValid()) {
@@ -93,6 +107,9 @@ class DucksController extends AbstractController
                     // instead of its contents
                     $duck->setPhoto('/uploads/photo_directory/'.$photoFileName);
                 }
+                $plainPassword = $form['password']->getdata();
+                $encoded = $encoder->encodePassword($duck, $plainPassword);
+                $duck->setPassword($encoded);
                 $this->getDoctrine()->getManager()->flush();
 
                 return $this->redirectToRoute('ducks_edit', ['id' => $duck->getId()]);
@@ -106,8 +123,12 @@ class DucksController extends AbstractController
         return $this->redirectToRoute('app_login');
 
     }
+
     /**
      * @Route("/{id}", name="ducks_delete", methods={"DELETE"})
+     * @param Request $request
+     * @param Ducks $duck
+     * @return Response
      */
     public function delete(Request $request, Ducks $duck): Response
     {

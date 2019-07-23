@@ -152,6 +152,12 @@ class Quack
         return $this;
     }
 
-
+    /**
+     * @return string
+     */
+    public function __toString() {
+        $id = strval($this->id);
+        return $id;
+    }
 
 }

@@ -1,5 +1,40 @@
 # config/packages/easy_admin.yaml
 easy_admin:
   entities:
-    # change the following to the namespaces of your own entities
-    - App\Entity\Quack
+    Quack:
+      class: App\Entity\Quack
+      list:
+        title: "Most recent Quack"
+        max_results: 30
+    Comment:
+      class: App\Entity\Comment
+      list:
+        title: "Most recent Comment"
+        max_results: 30
+    Ducks:
+      class: App\Entity\Ducks
+      form:
+        fields:
+          - id
+          - { type: 'section', label: 'ducks Details' }
+          - firstname
+          - lastname
+          - { type: 'section', label: 'login information' }
+          - email
+          - duckname
+          - password
+          - { type: 'section', label: 'role information' }
+          - property: 'roles'
+            type: 'choice'
+            type_options:
+              multiple: true
+              expanded: true
+              choices:
+                "admin bogoss": ROLE_ADMIN
+                "bolosse": ROLE_USER
+
+
+      list:
+        title: "Most recent duck"
+        max_results: 30
+

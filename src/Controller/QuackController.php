@@ -7,15 +7,15 @@ use App\Entity\Quack;
 use App\Form\CommentsType;
 use App\Form\QuackType;
 use App\Repository\CommentRepository;
-use App\Repository\DucksRepository;
 use App\Repository\QuackRepository;
 use App\Service\FileUploader;
-use http\Client\Curl\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
+
 
 /**
  * @Route("/quack")
@@ -24,6 +24,8 @@ class QuackController extends AbstractController
 {
     /**
      * @Route("/quackAdmin", name="quack_index", methods={"GET"})
+     * @param QuackRepository $quackRepository
+     * @return Response
      */
     public function index(QuackRepository $quackRepository): Response
     {
@@ -45,6 +47,7 @@ class QuackController extends AbstractController
      */
     public function lastQuack(QuackRepository $quackRepository, Request $request, CommentRepository $commentRepository, Quack $quack = null): Response
     {
+
         $forms = $quackRepository->findAll();
         foreach ($forms as $index => $form) {
             $comment = new Comment();
@@ -81,6 +84,9 @@ class QuackController extends AbstractController
 
     /**
      * @Route("/new", name="quack_new", methods={"GET","POST"})
+     * @param Request $request
+     * @param FileUploader $fileUploader
+     * @return Response
      * @throws \Exception
      */
     public function new(Request $request, FileUploader $fileUploader ): Response
@@ -122,24 +128,16 @@ class QuackController extends AbstractController
 
     }
 
-    /**
-     * @Route("/{id}", name="quack_show", methods={"GET"})
-     */
-    public function show(Quack $quack): Response
-    {
-        $this->denyAccessUnlessGranted('EDIT', $quack);
-        return $this->render('quack/show.html.twig', [
-            'quack' => $quack,
-        ]);
 
-
-        return $this->redirectToRoute('quack_all');
-    }
 
     /**
      * @Route("/{id}/edit", name="quack_edit", methods={"GET","POST"})
+     * @param Request $request
+     * @param Quack $quack
+     * @param FileUploader $fileUploader
+     * @return Response
      */
-    public function edit(Request $request, Quack $quack): Response
+    public function edit(Request $request, Quack $quack , FileUploader $fileUploader): Response
     {
 
 
@@ -148,6 +146,16 @@ class QuackController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $photo = $form['photo']->getData();
+
+            // this condition is needed because the 'brochure' field is not required
+            // so the PDF file must be processed only when a file is uploaded
+            if ($photo) {
+                $photoFileName = $fileUploader->upload($photo);
+                // updates the 'photoname' property to store the PDF file name
+                // instead of its contents
+                $quack->setPhoto('/uploads/photo_directory/'.$photoFileName);
+            }
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('quack_all');
@@ -182,6 +190,48 @@ class QuackController extends AbstractController
 
         return $this->redirectToRoute('quack_all');
     }
+
+
+    /**
+     * @Route("/resultat", name="quack_find")
+     *
+     */
+    public function findByDuckname(Request $request, QuackRepository $quackRepository) {
+        return $this->render('quack/quackSearch.html.twig', [
+            'quackSearch' => $quackRepository->findByDuckname($request->query->get("form")["duckname"]),
+            'duckname' => $request->query->get("form")["duckname"]
+
+        ]);
+
+    }
+
+    public function searchByDuckname(){
+        $form = $this->createFormBuilder(null)
+            ->setAction($this->generateUrl('quack_find'))
+            ->setMethod('GET')
+            ->add("duckname",null, array('label' => false))
+            ->add("search",SubmitType::class)
+            ->getForm();
+        return $this->render("quack/searchform.html.twig", ["form"=>$form->createView()]);
+    }
+
+
+    /**
+     * @Route("/{id}", name="quack_show", methods={"GET"})
+     * @param Quack $quack
+     * @return Response
+     */
+    public function show(Quack $quack): Response
+    {
+        $this->denyAccessUnlessGranted('EDIT', $quack);
+        return $this->render('quack/show.html.twig', [
+            'quack' => $quack,
+        ]);
+
+
+        return $this->redirectToRoute('quack_all');
+    }
+
 }
 
 

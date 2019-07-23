@@ -21,16 +21,25 @@ class DucksRepository extends ServiceEntityRepository implements UserLoaderInter
         parent::__construct($registry, Ducks::class);
     }
 
-   /* public function loadUserByUsername($usernameOrEmail)
+    /**
+     * Loads the user for the given username.
+     *
+     * This method must return null if the user is not found.
+     *
+     * @param string $username The username
+     *
+     * @return UserInterface|null
+     */
+    public function loadUserByUsername($username)
     {
-        dump($usernameOrEmail);
-        die();
+
         return $this->createQueryBuilder('u')
             ->where('u.duckname = :query OR u.email = :query')
-            ->setParameter('query', $usernameOrEmail)
+            ->setParameter('query', $username)
             ->getQuery()
             ->getOneOrNullResult();
-    }*/
+    }
+
     // /**
     //  * @return Ducks[] Returns an array of Ducks objects
     //  */
@@ -59,22 +68,5 @@ class DucksRepository extends ServiceEntityRepository implements UserLoaderInter
         ;
     }
     */
-    /**
-     * Loads the user for the given username.
-     *
-     * This method must return null if the user is not found.
-     *
-     * @param string $username The username
-     *
-     * @return UserInterface|null
-     */
-    public function loadUserByUsername($username)
-    {
 
-        return $this->createQueryBuilder('u')
-            ->where('u.duckname = :query OR u.email = :query')
-            ->setParameter('query', $username)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
 }

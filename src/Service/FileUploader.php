@@ -21,6 +21,10 @@ class FileUploader
         $this->targetDirectory = $targetDirectory;
     }
 
+    /**
+     * @param UploadedFile $photo
+     * @return string
+     */
     public function upload(UploadedFile $photo)
     {
         $originalFilename = pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME);
@@ -41,6 +45,9 @@ class FileUploader
         return $newFilename;
     }
 
+    /**
+     * @return mixed
+     */
     public function getTargetDirectory()
     {
         return $this->targetDirectory;

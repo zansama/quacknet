@@ -2,25 +2,24 @@
 
 namespace App\Form;
 
-use App\Entity\Quack;
-
+use App\Entity\Ducks;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 
-class QuackType extends AbstractType
+class DuckRegistrationType extends AbstractType
 {
-
-
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
-            ->add('content')
-            ->add('tags')
+            ->add('firstname')
+            ->add('lastname')
+            ->add('duckname')
+            ->add('email')
+            ->add('password')
             ->add('photo', FileType::class, [
                 'label' => 'Photo de profil',
 
@@ -42,16 +41,13 @@ class QuackType extends AbstractType
                         'mimeTypesMessage' => 'Please upload a valid Photo',
                     ])
                 ],
-            ])
-        ;
-
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Quack::class,
+            'data_class' => Ducks::class,
         ]);
     }
 }

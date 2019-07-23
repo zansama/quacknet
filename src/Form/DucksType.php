@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Ducks;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -19,6 +20,12 @@ class DucksType extends AbstractType
             ->add('duckname')
             ->add('email')
             ->add('password')
+            ->add('roles', ChoiceType::class,
+                ['choices' => [
+                    'admin' => 'ROLE_ADMIN',
+                    'user' => 'ROLE_USER'
+            ],
+                    'multiple'=>true])
             ->add('photo', FileType::class, [
                 'label' => 'Photo de profil',
 
@@ -40,8 +47,7 @@ class DucksType extends AbstractType
                         'mimeTypesMessage' => 'Please upload a valid Photo',
                     ])
                 ],
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
