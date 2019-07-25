@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @UniqueEntity(fields="email", message="Email déjà pris")
  * @UniqueEntity(fields="duckname", message="Username déjà pris")
  */
-class Ducks implements UserInterface
+class Ducks implements UserInterface, \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -49,7 +49,7 @@ class Ducks implements UserInterface
     private $password;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Quack", mappedBy="author")
+     * @ORM\OneToMany(targetEntity="App\Entity\Quack", mappedBy="author", cascade={"remove"})
      */
     private $quacks;
 
@@ -69,7 +69,6 @@ class Ducks implements UserInterface
      * @ORM\Column(type="json", nullable=true)
      */
     private $roles = [];
-
 
 
     public function __construct()
@@ -169,7 +168,6 @@ class Ducks implements UserInterface
         return array_unique($roles);
 
     }
-
 
 
     /**
@@ -287,11 +285,30 @@ class Ducks implements UserInterface
     }
 
 
-
     /**
      * @return mixed
      */
-    public function __toString() {
+    public function __toString()
+    {
         return $this->duckname;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->id,
+            'duckname' => $this->duckname,
+            'email' => $this->email,
+            'photo' => $this->photo,
+            'lastname' => $this->lastname,
+            'firstname' => $this->firstname
+        ];
     }
 }

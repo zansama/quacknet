@@ -32,13 +32,25 @@ class QuackRepository extends ServiceEntityRepository
             ->addSelect('c')
             ->orWhere('c.duckname LIKE :val')
             ->orWhere('q.content LIKE :val')
-            ->orWhere('q.tags LIKE :val')
             ->setParameter('val', '%'.$duckname.'%')
             ->orderBy('q.id', 'ASC')
             ->getQuery()
             ->getResult()
         ;
     }
+
+    public function findBytags($tags)
+    {
+        return $this->createQueryBuilder('q')
+            ->andWhere('q.tags = :val')
+            ->setParameter('val', $tags)
+            ->orderBy('q.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+
 
 
     /*
